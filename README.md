@@ -1,0 +1,2 @@
+# [Introdução à programação em C](https://www.casadocodigo.com.br/products/livro-introducao-c#:~:text=C%20%C3%A9%20uma%20%C3%B3tima%20linguagem%20para%20quem%20quer,da%20forca%2C%20e%20o%20Foge-foge%2C%20similar%20ao%20Pac-man.)
+Repo para fazer os exercícios do livro acima
