@@ -52,11 +52,11 @@ int get_dificulty() {
     printf("3 - Difícil \n");
     printf("12 - Impossível \n");
     scanf("%d", &difficulty);
-    printf("A dificuldade escolhida foi %d\n", difficulty);
 
     valid_choice = array_includes(choices, difficulty);
   } while (!valid_choice);
 
+  printf("A dificuldade escolhida foi %d\n", difficulty);
   return difficulty;
 }
 
@@ -77,7 +77,7 @@ int calculate_score(const ScoreParams score_params) {
 
 int get_guess() {
   int guess;
-  int unacceptable_guess = false;
+  int unacceptable_guess = true;
 
   do {
     printf("Qual é o seu chute? ");
