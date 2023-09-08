@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h>
+
 
 void print_welcome() {
   printf("\n");
@@ -16,11 +18,23 @@ int set_tries() {
   return 3;
 }
 
+int calculate_score(const int current_try) {
+  const int initial_score = 1000;
+  int score = initial_score - ((int)pow(current_try, 3) * 15);
+  
+  return score;
+}
+
 int get_guess() {
   int guess;
   printf("Qual é o seu chute? ");
   scanf("%d", &guess);
+  int unacceptable_guess = guess < 0 || guess > 100;
 
+  while (unacceptable_guess) {
+    printf("Chute inválido. Apenas valores entre 0 e 100.\n");
+    scanf("%d", &guess);
+  }
   return guess;
 }
 
@@ -41,13 +55,19 @@ int analyze_result(const int guess, const int secret_number) {
 
 void run_game(int tries, const int secret_number) {
   int guessed_right = false;
+  int current_try;
 
   for (int i = 0; !guessed_right && i < tries; i++) {
-    int current_try = i + 1;
+    current_try = i + 1;
     int has_tries = current_try < tries;
     int guess = get_guess();
     printf("Tentativa %d de %d\n", current_try, tries);
     guessed_right = analyze_result(guess, secret_number);
+  }
+
+  if(guessed_right) {
+    int score = calculate_score(current_try);
+    printf("Seu score foi de %d\n", score);
   }
 }
 

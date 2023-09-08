@@ -4,5 +4,6 @@ services:
     build: .
     volumes:
       - ./app:/app
+      - ./config:/config
     stdin_open: true
     tty: true
