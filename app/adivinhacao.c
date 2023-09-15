@@ -146,7 +146,7 @@ int analyze_result(const int guess, const int secret_number) {
   return false;
 }
 
-void run_game(const GameParams game_params) {
+void run(const GameParams game_params) {
   int guessed_right = false;
   int current_try;
   int guess;
@@ -171,15 +171,35 @@ void run_game(const GameParams game_params) {
   printf("Seu score foi de %d\n", score);
 }
 
-int main() {
-  print_welcome();
+void start() {
   int difficulty = get_dificulty();
   int* range = get_guess_range();
   int secret_number = generate_secret_number(range[0], range[1]);
   printf("DEBUG - Número secreto: %d\n", secret_number);
   int tries = get_tries(difficulty);
   GameParams game_params = {tries, secret_number, range[0], range[1]};
-  run_game(game_params);
+
+  run(game_params);
+}
+
+int play_again() {
+  printf("------------------------------\n");
+  printf("Deseja jogar novamente? (y/n): ");
+  char answer;
+  scanf(" %c", &answer);
+
+  return answer == 'y';
+}
+
+int main() {
+  print_welcome();
+  int play = true;
+
+  do {
+    start();
+    play = play_again();
+  } while (play);
+  
   printf("Obrigada por jogar!\n\n");
 
   return 0;
