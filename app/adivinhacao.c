@@ -26,7 +26,16 @@ int array_includes(const int array[], int element) {
 void print_welcome() {
   printf("\n");
   printf("************************************\n");
-  printf("* Bem-vindo ao Jogo de Adivinhação *\n");
+  printf("  ____  \n");
+  printf(" /    \\ \n");
+  printf("|  ▓▓▓▓\\ \n");
+  printf(" \\▓▓| ▓▓ \n");
+  printf("   /  ▓▓ \n");
+  printf("  |  ▓▓  \n");
+  printf("   \\▓▓   \n");
+  printf("  |  \\   \n");
+  printf("   \\▓▓  \n\n");
+  printf("* Bem-vindo ao Jogo de Adivinhação *\n\n");
   printf("************************************\n");
 }
 
