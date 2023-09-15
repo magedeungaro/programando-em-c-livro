@@ -18,6 +18,10 @@ typedef struct {
   int max_guess;
 } GameParams;
 
+typedef struct {
+  int last_guess;
+} GameState;
+
 int array_includes(const int array[], int element) {
   int length = *(&array + 1) - array;
 
@@ -112,20 +116,32 @@ int calculate_score(const ScoreParams score_params) {
   return score;
 }
 
-int get_guess(GameParams game_params) {
-  int guess;
+int invalid_guess(const int guess, const GameParams game_params, const GameState state) {
   int min = game_params.min_guess;
   int max = game_params.max_guess;
+  int out_of_range = guess < min || guess > max;
+  int same_guess = guess == state.last_guess;
+
+  if (out_of_range) {
+    printf("Chute inválido. Apenas valores entre %d e %d.\n\n", min, max);
+    return true;
+  }
+  else if (same_guess) {
+    printf("Chute repetido. Tente outro número.\n\n");
+    return true;
+  }
+  
+  return false;
+}
+
+int get_guess(const GameParams game_params, const GameState state) {
+  int guess;
   int unacceptable_guess = true;
 
   do {
     printf("Qual é o seu chute? ");
     scanf("%d", &guess);
-    unacceptable_guess = guess < min || guess > max;
-
-    if (unacceptable_guess) {
-      printf("Chute inválido. Apenas valores entre %d e %d.\n\n", min, max);
-    }
+    unacceptable_guess = invalid_guess(guess, game_params, state);
   } while (unacceptable_guess);
 
   return guess;
@@ -147,6 +163,7 @@ int analyze_result(const int guess, const int secret_number) {
 }
 
 void run(const GameParams game_params) {
+  GameState state;
   int guessed_right = false;
   int current_try;
   int guess;
@@ -157,8 +174,9 @@ void run(const GameParams game_params) {
 
     printf("----------------------------------------\n");
     printf("Tentativa %d de %d\n", current_try, game_params.tries);
-    guess = get_guess(game_params);
+    guess = get_guess(game_params, state);
     guessed_right = analyze_result(guess, game_params.secret_number);
+    state.last_guess = guess;
   }
   
   ScoreParams score_params = {game_params.tries, game_params.secret_number, guess, current_try};
