@@ -11,6 +11,13 @@ typedef struct {
   int current_try;
 } ScoreParams;
 
+typedef struct {
+  int tries;
+  int secret_number;
+  int min_guess;
+  int max_guess;
+} GameParams;
+
 int array_includes(const int array[], int element) {
   int length = *(&array + 1) - array;
 
@@ -44,9 +51,30 @@ void seed_random() {
   srand(seconds);
 }
 
-int generate_secret_number() {
+int generate_secret_number(const int min, const int max) {
   seed_random();
-  return rand() % 100 + 1;
+  return rand() % (max - min + 1) + min;
+}
+
+int* get_guess_range() {
+  printf("Deseja configurar o intervalo de números? (y/n): ");
+  char answer;
+  int min = 0;
+  int max = 100;
+  scanf(" %c", &answer);
+
+  if (answer == 'y') {
+    printf("Min: ");
+    scanf("%d", &min);
+    printf("Max: ");
+    scanf("%d", &max);
+  }
+
+  static int range[2];
+  range[0] = min;
+  range[1] = max;
+
+  return range;
 }
 
 int get_dificulty() {
@@ -69,7 +97,7 @@ int get_dificulty() {
   return difficulty;
 }
 
-int set_tries(const int difficulty) {
+int get_tries(const int difficulty) {
   const int max_tries = 24;
 
   return max_tries / difficulty;
@@ -84,17 +112,19 @@ int calculate_score(const ScoreParams score_params) {
   return score;
 }
 
-int get_guess() {
+int get_guess(GameParams game_params) {
   int guess;
+  int min = game_params.min_guess;
+  int max = game_params.max_guess;
   int unacceptable_guess = true;
 
   do {
     printf("Qual é o seu chute? ");
     scanf("%d", &guess);
-    unacceptable_guess = guess < 0 || guess > 100;
+    unacceptable_guess = guess < min || guess > max;
 
     if (unacceptable_guess) {
-      printf("Chute inválido. Apenas valores entre 0 e 100.\n");
+      printf("Chute inválido. Apenas valores entre %d e %d.\n\n", min, max);
     }
   } while (unacceptable_guess);
 
@@ -103,52 +133,54 @@ int get_guess() {
 
 int analyze_result(const int guess, const int secret_number) {
   if(guess == secret_number) {
-    printf("Parabéns! Você acertou!\n");
+    printf("Parabéns! Você acertou!\n\n");
     return true;
   }
   else if (guess > secret_number) {
-    printf("Seu chute foi maior do que o número secreto!\n");
+    printf("Seu chute foi maior do que o número secreto!\n\n");
   }
   else {
-    printf("Seu chute foi menor do que o número secreto!\n");
+    printf("Seu chute foi menor do que o número secreto!\n\n");
   }
 
   return false;
 }
 
-void run_game(int tries, const int secret_number) {
+void run_game(const GameParams game_params) {
   int guessed_right = false;
   int current_try;
   int guess;
 
-  for (int i = 0; !guessed_right && i < tries; i++) {
+  for (int i = 0; !guessed_right && i < game_params.tries; i++) {
     current_try = i + 1;
-    int has_tries = current_try < tries;
+    int has_tries = current_try < game_params.tries;
 
     printf("----------------------------------------\n");
-    printf("Tentativa %d de %d\n", current_try, tries);
-    guess = get_guess();
-    guessed_right = analyze_result(guess, secret_number);
+    printf("Tentativa %d de %d\n", current_try, game_params.tries);
+    guess = get_guess(game_params);
+    guessed_right = analyze_result(guess, game_params.secret_number);
   }
   
-  ScoreParams score_params = {tries, secret_number, guess, current_try};
+  ScoreParams score_params = {game_params.tries, game_params.secret_number, guess, current_try};
   int score = calculate_score(score_params);
 
   if (!guessed_right) {
     printf("Você perdeu! Tente novamente ~ \n");
   }
-  printf("O número secreto era %d\n", secret_number);
+  printf("O número secreto era %d\n", game_params.secret_number);
   printf("Seu score foi de %d\n", score);
 }
 
 int main() {
   print_welcome();
-  int secret_number = generate_secret_number();
-  printf("Número secreto: %d\n", secret_number);
   int difficulty = get_dificulty();
-  int tries = set_tries(difficulty);
-  run_game(tries, secret_number);
-  printf("Obrigada por jogar!\n");
+  int* range = get_guess_range();
+  int secret_number = generate_secret_number(range[0], range[1]);
+  printf("DEBUG - Número secreto: %d\n", secret_number);
+  int tries = get_tries(difficulty);
+  GameParams game_params = {tries, secret_number, range[0], range[1]};
+  run_game(game_params);
+  printf("Obrigada por jogar!\n\n");
 
   return 0;
 }
