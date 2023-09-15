@@ -116,14 +116,19 @@ void run_game(int tries, const int secret_number) {
     current_try = i + 1;
     int has_tries = current_try < tries;
 
+    printf("----------------------------------------\n");
     printf("Tentativa %d de %d\n", current_try, tries);
     guess = get_guess();
     guessed_right = analyze_result(guess, secret_number);
   }
-
-  printf("O número secreto era %d\n", secret_number);
+  
   ScoreParams score_params = {tries, secret_number, guess, current_try};
   int score = calculate_score(score_params);
+
+  if (!guessed_right) {
+    printf("Você perdeu! Tente novamente ~ \n");
+  }
+  printf("O número secreto era %d\n", secret_number);
   printf("Seu score foi de %d\n", score);
 }
 
