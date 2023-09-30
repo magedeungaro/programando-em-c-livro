@@ -6,7 +6,7 @@ if [ $# -eq 0 ]; then
 fi
 
 filename="$1"
-binaryname="${filename%.*}"
+binaryname="game-${filename%.*}"
 
 gcc -g "$filename" -o "$binaryname" -lm
 if [ $? -eq 0 ]; then
