@@ -6,25 +6,45 @@
 #include <string.h>
 
 typedef struct {
-  int hanged;
-  int won;
-  int over;
+  bool hanged;
+  bool won;
+  bool over;
+  char* guesses;
+  int guess_number;
 } GameState;
 
-  typedef struct {
-    int success;
-    int position;
-    char guess;
-  } GuessAnalysis;
+typedef struct {
+  int success;
+  int* positions;
+  int positions_qtd;
+  char guess;
+} GuessAnalysis;
 
-int randomize_position(int max) {
-  srand(time(NULL));
+void update_hidden_word(GuessAnalysis result, char* hidden_word) {
+  for (int i = 0; i < result.positions_qtd; i++) {
+    hidden_word[result.positions[i]] = result.guess;
+  }
+}
 
-  return rand() % max;
+void print_hidden_word(char* hidden_word) {
+  for (int i = 0; i < strlen(hidden_word); i++) {
+    printf("%c ", hidden_word[i]);
+  }
+
+  printf("\n");
 }
 
 char* generate_word() {
   return "melancia";
+}
+
+char* hide_word(char* word) {
+  char* hidden_word = malloc(sizeof(char) * strlen(word));
+  for (int i = 0; i < strlen(word); i++) {
+    hidden_word[i] = '_';
+  }
+
+  return hidden_word;
 }
 
 char get_letter_guess() {
@@ -36,23 +56,30 @@ char get_letter_guess() {
 }
 
 GuessAnalysis word_includes(char word[], char letter) {
-  GuessAnalysis response = { success: false, position: -1, guess: letter };
+  GuessAnalysis response = {
+    success: false,
+    positions: malloc(sizeof(int) * strlen(word)),
+    positions_qtd: 0,
+    guess: letter
+  };
 
   int length = strlen(word);
 
   for (int i = 0; i < length; i++) {
     if (word[i] == letter) {
       response.success = true;
-      response.position = i;
+      response.positions[response.positions_qtd] = i;
+      response.positions_qtd++;
     }
   }
 
   return response;
 }
 
-void action_strategy(GuessAnalysis result) {
+void action_strategy(GuessAnalysis result, char* hidden_word) {
   if (result.success) {
-    printf("A palavra tem a letra %c na posicao %d \n", result.guess, result.position);
+    printf("A palavra tem a letra %c \n", result.guess);
+    update_hidden_word(result, hidden_word);
     // uncover the letter
   }
   else {
@@ -61,23 +88,32 @@ void action_strategy(GuessAnalysis result) {
   }
 }
 
-void run_game() {
+void run_game(GameState game_state) {
   char* word = generate_word();
-  GameState game_state = {
-    hanged: false,
-    won: false,
-    over: game_state.hanged || game_state.won
-  };
+  char* hidden_word = hide_word(word);
 
   do {
+    print_hidden_word(hidden_word);
     char guess = get_letter_guess();
+    game_state.guesses[game_state.guess_number] = guess;
+    game_state.guess_number++;
+
     GuessAnalysis result = word_includes(word, guess);
-    action_strategy(result);
+    action_strategy(result, hidden_word);
   } while (!game_state.over);
 }
 
 int main () {
-  run_game();
+  int max_guesses = 26;
+
+  GameState game_state = {
+    hanged: false,
+    won: false,
+    over: game_state.hanged || game_state.won,
+    guesses: malloc(sizeof(char) * max_guesses),
+    guess_number: 0
+  };
+  run_game(game_state);
 
   return 0;
 }
