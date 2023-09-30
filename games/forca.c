@@ -8,7 +8,6 @@
 typedef struct {
   bool hanged;
   bool won;
-  bool over;
   char* guesses;
   int guess_number;
 } GameState;
@@ -20,10 +19,24 @@ typedef struct {
   char guess;
 } GuessAnalysis;
 
+bool game_over(GameState game_state) {
+  return game_state.hanged || game_state.won;
+}
+
 void update_hidden_word(GuessAnalysis result, char* hidden_word) {
   for (int i = 0; i < result.positions_qtd; i++) {
     hidden_word[result.positions[i]] = result.guess;
   }
+}
+
+bool revealed_whole_word(char* hidden_word) {
+  for (int i = 0; i < strlen(hidden_word); i++) {
+    if (hidden_word[i] == '_') {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 void print_hidden_word(char* hidden_word) {
@@ -80,7 +93,6 @@ void action_strategy(GuessAnalysis result, char* hidden_word) {
   if (result.success) {
     printf("A palavra tem a letra %c \n", result.guess);
     update_hidden_word(result, hidden_word);
-    // uncover the letter
   }
   else {
     printf("A palavra nao tem a letra %c \n", result.guess);
@@ -100,7 +112,10 @@ void run_game(GameState game_state) {
 
     GuessAnalysis result = word_includes(word, guess);
     action_strategy(result, hidden_word);
-  } while (!game_state.over);
+    game_state.won = revealed_whole_word(hidden_word);
+  } while (!game_over(game_state));
+
+  printf("A palavra era %s\n", word);
 }
 
 int main () {
@@ -109,7 +124,6 @@ int main () {
   GameState game_state = {
     hanged: false,
     won: false,
-    over: game_state.hanged || game_state.won,
     guesses: malloc(sizeof(char) * max_guesses),
     guess_number: 0
   };
